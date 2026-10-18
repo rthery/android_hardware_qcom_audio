@@ -69,6 +69,12 @@ static hal_version connectPowerHalLocked() {
         }
     }
 
+    // Legacy devices may have no binderized Power HAL. Do not spend the
+    // getService retry window blocking the first microphone read for an
+    // optional performance hint when no AIDL instance is declared.
+    if (gPowerHalAidlExists && !AServiceManager_isDeclared(kInstance.c_str())) {
+        gPowerHalAidlExists = false;
+    }
     if (gPowerHalAidlExists) {
         // (re)connect if handle is null
         if (!gPowerHal_Aidl_) {
